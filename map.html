@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICML 2026 — COEX Floor Map</title>
+<meta name="description" content="Interactive COEX floor map of ICML 2026 posters and orals.">
+<style>
+  :root{
+    --bg:#f7f7f8; --card:#ffffff; --ink:#18181b; --muted:#6b7280; --line:#e6e6ea;
+    --accent:#111827; --chip:#f1f1f4; --shadow:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
+    --c-vm:#7c3aed; --c-serv:#0891b2; --c-ft:#ea580c; --c-bd:#2563eb;
+    --c-lm:#16a34a; --c-rob:#e11d48; --c-ret:#db2777; --c-ag:#ca8a04;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5;font-size:15px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+  a{color:inherit}
+  .wrap{max-width:980px;margin:0 auto;padding:0 16px}
+  header{background:#fff;border-bottom:1px solid var(--line)}
+  .head-in{padding:18px 0 12px;display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+  h1{margin:0;font-size:20px;letter-spacing:-.02em;font-weight:700}
+  .sub{color:var(--muted);font-size:13px}
+  .sub a{text-decoration:underline;text-underline-offset:2px}
+  h2{font-size:15px;font-weight:600;margin:26px 0 10px}
+  .pill{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;
+    padding:5px 11px;font-size:13px;cursor:pointer;white-space:nowrap;transition:.12s;user-select:none;display:inline-flex;gap:6px;align-items:center}
+  .pill .n{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+  .pill:hover{border-color:#cfcfd6}
+  .pill[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .pill[aria-pressed="true"] .n{color:rgba(255,255,255,.75)}
+  .pill.cat[aria-pressed="true"]{background:var(--catc);border-color:var(--catc)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--catc);flex:none}
+  .pill[aria-pressed="true"] .dot{background:#fff}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row+.row{margin-top:8px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+  #venue,#boardwrap svg{display:block;width:100%;height:auto}
+  .room{fill:#ededf0;stroke:#d6d6dc;stroke-width:1}
+  .room.oral{fill:#f3eefc;stroke:#d9c9f4;cursor:pointer}
+  .room.oral:hover{fill:#eadffa}
+  .room.sel{stroke:#7c3aed;stroke-width:2.5}
+  .room.posters{fill:#fff3e8;stroke:#f3c9a4;cursor:pointer}
+  .room.posters:hover{fill:#ffe9d4}
+  .rlab{font-size:20px;font-weight:600;fill:#3f3f46;pointer-events:none}
+  .rlab.sm{font-size:13px;font-weight:500;fill:#71717a}
+  .rlab.xs{font-size:11px;fill:#a1a1aa;font-weight:500}
+  .badge{font-size:12px;font-weight:600;fill:#7c3aed;pointer-events:none}
+  .badge.o{fill:#c2410c}
+  .search{flex:1;min-width:170px;display:flex;align-items:center;gap:8px;background:#fff;
+    border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+  .search input{border:0;outline:0;flex:1;font-size:14px;background:transparent;color:var(--ink);min-width:0}
+  #boardwrap{overflow-x:auto}
+  #boardwrap svg{min-width:760px}
+  .bdot{cursor:pointer}
+  .bdot.dim{opacity:.13}
+  .bdot.hit{stroke:#111827;stroke-width:1.6}
+  .bdot.fv{stroke:#db2777;stroke-width:2.2}
+  .favb{background:none;border:0;cursor:pointer;font-size:19px;line-height:1;padding:2px 6px 2px 0;
+    color:#c6c8cf;vertical-align:-2px}
+  .favb[aria-pressed="true"]{color:#db2777}
+  #tip{position:fixed;z-index:50;background:#111827;color:#fff;font-size:12px;padding:6px 9px;border-radius:8px;
+    pointer-events:none;display:none;max-width:300px;line-height:1.35}
+  #tip b{display:block;font-size:12.5px}
+  #tip span{color:#c7c9d1}
+  .card{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;display:none}
+  .card .cat-badge{display:inline-block;font-size:11.5px;font-weight:600;color:#fff;border-radius:999px;padding:2px 9px;margin-right:6px}
+  .card .oralb{display:inline-block;font-size:11.5px;font-weight:600;color:#c2410c;background:#ffedd5;border-radius:999px;padding:2px 9px;margin-right:6px}
+  .card h3{margin:8px 0 2px;font-size:15.5px;line-height:1.35}
+  .card h3 a:hover{color:#4338ca}
+  .card .by{color:var(--muted);font-size:13px}
+  .card .tl{font-size:13.5px;margin-top:6px}
+  .card .sched{font-size:12.5px;color:var(--muted);margin-top:6px}
+  #orallist{display:none}
+  .oral-item{padding:9px 2px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .oral-item:last-child{border-bottom:0}
+  .oral-item .t{font-weight:600}
+  .oral-item .m{color:var(--muted);font-size:12.5px}
+  .legendnote{color:var(--muted);font-size:12px;margin-top:8px}
+  main{padding:10px 0 70px}
+</style>
+</head>
+<body>
+<header><div class="wrap head-in">
+  <div><h1>COEX Floor Map</h1>
+  <div class="sub">ICML 2026 · Seoul · times in KST · <a href="index.html">← list view</a></div></div>
+  <div class="sub" id="stat"></div>
+</div></header>
+
+<main class="wrap">
+  <h2>Venue — click a hall</h2>
+  <div class="panel">
+    <svg id="venue" viewBox="315 245 1460 425" role="img" aria-label="Simplified COEX floor map">
+      <rect class="room" x="330" y="280" width="205" height="78"/>
+      <text class="rlab sm" x="432" y="315" text-anchor="middle">Conference Rooms</text>
+      <text class="rlab xs" x="432" y="332" text-anchor="middle">400–403</text>
+      <rect class="room" x="330" y="358" width="205" height="66"/>
+      <text class="rlab xs" x="432" y="395" text-anchor="middle">Conference Rooms 300–328</text>
+      <rect class="room" x="330" y="424" width="250" height="162"/>
+      <text class="rlab xs" x="455" y="510" text-anchor="middle">Coex Broadcast Studio</text>
+
+      <rect class="room oral" data-room="HALL C" x="605" y="280" width="310" height="150"/>
+      <text class="rlab" x="740" y="330" text-anchor="middle">Hall C</text>
+      <rect class="room" x="665" y="368" width="180" height="55"/>
+      <text class="rlab xs" x="755" y="399" text-anchor="middle">Conf. Room E</text>
+
+      <rect class="room posters" data-room="HALL A" x="605" y="430" width="310" height="156"/>
+      <text class="rlab" x="760" y="505" text-anchor="middle">Hall A</text>
+      <text class="rlab xs" x="760" y="525" text-anchor="middle" id="hallA-sub"></text>
+
+      <rect class="room oral" data-room="HALL D1" x="970" y="280" width="260" height="150"/>
+      <rect class="room oral" data-room="HALL D2" x="1230" y="280" width="260" height="150"/>
+      <line x1="1230" y1="284" x2="1230" y2="426" stroke="#d6d6dc" stroke-dasharray="5 4"/>
+      <text class="rlab" x="1100" y="365" text-anchor="middle">Hall D1</text>
+      <text class="rlab" x="1360" y="365" text-anchor="middle">Hall D2</text>
+
+      <rect class="room" x="970" y="430" width="260" height="156"/>
+      <rect class="room oral" data-room="HALL B2" x="1230" y="430" width="260" height="156"/>
+      <line x1="1230" y1="434" x2="1230" y2="582" stroke="#d6d6dc" stroke-dasharray="5 4"/>
+      <text class="rlab" x="1100" y="515" text-anchor="middle">Hall B1</text>
+      <text class="rlab" x="1360" y="515" text-anchor="middle">Hall B2</text>
+
+      <rect class="room oral" data-room="AUDITORIUM" x="1490" y="280" width="270" height="150"/>
+      <text class="rlab" x="1625" y="360" text-anchor="middle" style="font-size:17px">Auditorium</text>
+      <rect class="room oral" data-room="ASEM BALLROOM 201-203" x="1490" y="430" width="270" height="68"/>
+      <text class="rlab xs" x="1625" y="468" text-anchor="middle">ASEM Ballroom 201–211</text>
+      <rect class="room" x="1490" y="498" width="270" height="88"/>
+      <text class="rlab xs" x="1625" y="546" text-anchor="middle">Grand Ballroom 101–105</text>
+
+      <rect x="330" y="600" width="1430" height="46" fill="#4b4b52" rx="3"/>
+      <text x="1045" y="629" text-anchor="middle" style="font-size:15px;font-weight:600" fill="#fff">Starfield Coex Mall (B1)</text>
+      <text class="rlab xs" x="1360" y="666" text-anchor="middle">▲ East Gate — registration, Hall B foyer</text>
+      <text class="rlab xs" x="440" y="666" text-anchor="middle">Samseong Stn. (Line 2) →</text>
+      <g id="badges"></g>
+    </svg>
+    <div class="legendnote">보라색 = oral 세션 룸 (클릭하면 해당 룸 oral 목록) · 주황색 = 포스터홀</div>
+    <div id="orallist"></div>
+  </div>
+
+  <h2 id="hallA-title">Hall A — poster boards</h2>
+  <div class="row" id="sessions"></div>
+  <div class="row" style="margin-top:8px" id="cats"></div>
+  <div class="row" style="margin-top:8px">
+    <div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" opacity=".4"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    <input id="q" type="search" placeholder="Search title, author, institution…"></div>
+  </div>
+  <div class="panel" style="margin-top:10px">
+    <div id="boardwrap"></div>
+    <div class="legendnote">점 = 포스터 보드 (행 1–46 × 자리 0–26) · 테두리 있는 점 = oral 논문 · 클릭하면 상세</div>
+    <div class="card" id="card"></div>
+  </div>
+</main>
+<div id="tip"></div>
+
+<script src="papers.js"></script>
+<script>
+const CATHEX={"Deep Learning":"#7c3aed","Applications":"#0891b2","Social Aspects":"#e11d48",
+"General Machine Learning":"#2563eb","Reinforcement Learning":"#ea580c","Theory":"#16a34a",
+"Optimization":"#db2777","Probabilistic Methods":"#ca8a04","Unspecified":"#6b7280"};
+const CATC=CATHEX;
+const GLABEL={"General Machine Learning":"General ML","Reinforcement Learning":"RL","Probabilistic Methods":"Probabilistic"};
+const SUB=c=>c.includes("->")?c.split("->")[1]:c;
+const P=window.ICML_PAPERS, META=window.ICML_META;
+P.forEach(p=>{if(!p.grp)p.grp=p.cat.split('->')[0];});
+const FAVKEY='icml2026_favs';
+let FAV=new Set(); try{FAV=new Set(JSON.parse(localStorage.getItem(FAVKEY)||'[]'));}catch(e){}
+function favSave(){try{localStorage.setItem(FAVKEY,JSON.stringify([...FAV]));}catch(e){}}
+let favOnly=false;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const sessMap={};
+P.forEach(p=>{if(!p.ps||!p.ps.pos)return;const k=p.ps.sortkey;
+  (sessMap[k]=sessMap[k]||{key:k,day:p.ps.day,time:p.ps.time,ses:p.ps.ses,papers:[]}).papers.push(p);});
+const SESS=Object.values(sessMap).sort((a,b)=>a.key<b.key?-1:1);
+let curSess=SESS[0],curCat=null,q="";
+
+document.getElementById('stat').textContent=META.total.toLocaleString()+" papers · "+SESS.length+" poster sessions";
+document.getElementById('hallA-sub').textContent=P.filter(p=>p.ps&&p.ps.pos).length.toLocaleString()+" posters";
+
+const sessEl=document.getElementById('sessions');
+SESS.forEach(s=>{const b=document.createElement('button');b.className='pill';
+  b.innerHTML=esc(s.day.replace(' Jul','·'))+" "+esc(s.time.split('–')[0])+' <span class="n">'+s.papers.length+'</span>';
+  b.onclick=()=>{curSess=s;render()};b._s=s;sessEl.appendChild(b);});
+
+const catEl=document.getElementById('cats');
+META.cats.forEach(c=>{const b=document.createElement('button');b.className='pill cat';b.style.setProperty('--catc',CATC[c]);
+  b.innerHTML='<span class="dot"></span>'+esc(GLABEL[c]||c)+' <span class="n" data-cat-n></span>';
+  b.onclick=()=>{curCat=(curCat===c?null:c);render()};b._c=c;catEl.appendChild(b);});
+const favBtn=document.createElement('button');favBtn.className='pill';
+favBtn.innerHTML='♥ <span class="n" id="favn">'+FAV.size+'</span>';
+favBtn.onclick=()=>{favOnly=!favOnly;favBtn.style.color=favOnly?'#db2777':'';favBtn.style.borderColor=favOnly?'#f3bcd4':'';paint();};
+catEl.appendChild(favBtn);
+
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();paint();});
+
+const ROWS=46,COLS=27,SX=17.4,SY=13.6,X0=26,Y0=30;
+function rx(row){return X0+(row-1)*SX+Math.floor((row-1)/2)*5}
+const wrap=document.getElementById('boardwrap');
+let dotEls=[];
+
+function render(){
+  [...sessEl.children].forEach(b=>b.setAttribute('aria-pressed',b._s===curSess));
+  [...catEl.children].forEach(b=>{if(!b._c)return;b.setAttribute('aria-pressed',b._c===curCat);
+    const n=b.querySelector('[data-cat-n]');if(n)n.textContent=curSess.papers.filter(p=>p.grp===b._c).length;});
+  document.getElementById('hallA-title').textContent="Hall A — "+curSess.day+" · "+curSess.time+" ("+curSess.ses+")";
+  const W=rx(ROWS)+30,H=Y0+COLS*SY+16;
+  let g='<svg viewBox="0 0 '+W+' '+H+'"><rect x="2" y="6" width="'+(W-4)+'" height="'+(H-10)+'" fill="#fbfbfc" stroke="#e6e6ea" rx="10"/>';
+  for(let r=1;r<=ROWS;r+=4)g+='<text x="'+rx(r)+'" y="'+(Y0-12)+'" text-anchor="middle" style="font-size:9px" fill="#a1a1aa">'+r+'</text>';
+  g+='<g id="dots"></g></svg>';
+  wrap.innerHTML=g;
+  const dots=wrap.querySelector('#dots');dotEls=[];
+  curSess.papers.forEach(p=>{
+    const n=parseInt(p.ps.pos.replace('#','')),row=Math.floor(n/100),col=n%100;
+    if(row<1||row>ROWS||col>=COLS)return;
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',rx(row));c.setAttribute('cy',Y0+col*SY);c.setAttribute('r',p.oral?5.4:4.6);
+    c.setAttribute('fill',CATHEX[p.grp]||'#999');c.setAttribute('class','bdot'+(p.oral?' hit':'')+(FAV.has(p.id)?' fv':''));
+    c.addEventListener('click',()=>showCard(p));
+    c.addEventListener('mousemove',e=>tip(e,p));c.addEventListener('mouseleave',()=>tipEl.style.display='none');
+    c._p=p;dots.appendChild(c);dotEls.push(c);});
+  document.getElementById('card').style.display='none';
+  paint();
+}
+function match(p){
+  if(favOnly&&!FAV.has(p.id))return false;
+  if(curCat&&p.grp!==curCat)return false;
+  if(q&&!(p.title+' '+p.authors+' '+(p.inst||'')).toLowerCase().includes(q))return false;
+  return true;
+}
+function paint(){dotEls.forEach(c=>c.classList.toggle('dim',!match(c._p)));}
+
+const tipEl=document.getElementById('tip');
+function tip(e,p){tipEl.style.display='block';
+  tipEl.innerHTML='<b>'+esc(p.title)+'</b><span>'+esc(SUB(p.cat))+' · '+esc(p.ps.pos)+(p.oral?' · Oral':'')+'</span>';
+  const x=Math.min(e.clientX+14,window.innerWidth-310);tipEl.style.left=x+'px';tipEl.style.top=(e.clientY+16)+'px';}
+
+function showCard(p){const el=document.getElementById('card');el.style.display='block';
+  el.innerHTML='<button class="favb" aria-pressed="'+FAV.has(p.id)+'" aria-label="Favorite" title="Save to favorites (this browser only)">'+(FAV.has(p.id)?'♥':'♡')+'</button>'
+  +'<span class="cat-badge" style="background:'+CATHEX[p.grp]+'">'+esc(SUB(p.cat))+'</span>'
+  +(p.oral?'<span class="oralb">Oral · '+esc(p.os.day)+' '+esc(p.os.time)+' · '+esc(p.os.room)+'</span>':'')
+  +'<h3><a href="'+esc(p.url)+'" target="_blank" rel="noopener">'+esc(p.title)+' ↗</a></h3>'
+  +'<div class="by">'+esc(p.authors)+(p.inst?' — '+esc(p.inst):'')+'</div>'
+  +(p.tldr?'<div class="tl">'+esc(p.tldr)+'</div>':'')
+  +'<div class="sched">Poster: '+esc(p.ps.day)+' '+esc(p.ps.time)+' · '+esc(p.ps.room)+' board '+esc(p.ps.pos)+'</div>';
+  el.querySelector('.favb').onclick=()=>{
+    FAV.has(p.id)?FAV.delete(p.id):FAV.add(p.id); favSave();
+    const on=FAV.has(p.id), b=el.querySelector('.favb');
+    b.setAttribute('aria-pressed',on); b.textContent=on?'♥':'♡';
+    document.getElementById('favn').textContent=FAV.size;
+    const dot=dotEls.find(c=>c._p===p); if(dot)dot.classList.toggle('fv',on);
+    if(favOnly)paint();
+  };
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+const orals={};
+P.forEach(p=>{if(p.os)(orals[p.os.room]=orals[p.os.room]||[]).push(p);});
+const badges=document.getElementById('badges');
+const CENTER={"HALL C":[740,300],"HALL D1":[1100,300],"HALL D2":[1360,300],"HALL B2":[1360,455],
+"AUDITORIUM":[1625,300],"ASEM BALLROOM 201-203":[1690,450]};
+Object.entries(orals).forEach(([room,list])=>{const c=CENTER[room];if(!c)return;
+  const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+  t.setAttribute('x',c[0]);t.setAttribute('y',c[1]);t.setAttribute('text-anchor','middle');
+  t.setAttribute('class','badge');t.textContent=list.length+' orals';badges.appendChild(t);});
+document.querySelectorAll('.room.oral').forEach(r=>r.addEventListener('click',()=>{
+  document.querySelectorAll('.room').forEach(x=>x.classList.remove('sel'));r.classList.add('sel');
+  const room=r.dataset.room,list=(orals[room]||[]).slice().sort((a,b)=>a.os.sortkey<b.os.sortkey?-1:1);
+  const el=document.getElementById('orallist');el.style.display='block';
+  el.innerHTML='<h2 style="margin:14px 0 4px">'+esc(room)+' — '+list.length+' orals</h2>'+list.map(p=>
+    '<div class="oral-item"><span class="cat-badge" style="background:'+CATHEX[p.grp]+';font-size:10.5px;padding:1px 7px;color:#fff;border-radius:99px">'+esc(SUB(p.cat))+'</span> '
+    +'<a class="t" href="'+esc(p.url)+'" target="_blank" rel="noopener">'+esc(p.title)+'</a>'
+    +'<div class="m">'+esc(p.os.day)+' '+esc(p.os.time)+' · '+esc(p.os.ses)+'</div></div>').join('');}));
+document.querySelector('.room.posters').addEventListener('click',()=>{
+  document.getElementById('hallA-title').scrollIntoView({behavior:'smooth'});});
+
+render();
+</script>
+</body>
+</html>
