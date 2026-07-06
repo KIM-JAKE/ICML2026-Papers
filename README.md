@@ -31,8 +31,9 @@ Top-level area → subtopic (e.g. `Deep Learning->Large Language Models`), strai
 ## Deploy to GitHub Pages
 
 1. Put `index.html`, `map.html`, and `papers.js` in the root of the **KIM-JAKE/ICML2026-Papers** repo (keep them in the same folder).
-2. Repo **Settings → Pages → Build and deployment → Source: Deploy from a branch**, pick `main` / `root`, Save.
-3. Wait ~1 minute → the site is live at `https://kim-jake.github.io/ICML2026-Papers/`.
+2. Repo **Settings -> Pages -> Build and deployment -> Source: GitHub Actions**.
+3. Push to `main`, or run the **Deploy GitHub Pages** workflow manually.
+4. Wait ~1 minute -> the site is live at `https://kim-jake.github.io/ICML2026-Papers/`.
 
 Opening `index.html` directly in a browser also works (no server needed).
 
