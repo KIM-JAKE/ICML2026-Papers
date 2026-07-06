@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ICML 2026 Papers — Topic Guide</title>
+<meta name="description" content="A browsable, categorized guide to ICML 2026 papers with poster/oral schedules (Seoul, KST).">
+<style>
+  :root{
+    --bg:#f7f7f8; --card:#ffffff; --ink:#18181b; --muted:#6b7280; --line:#e6e6ea;
+    --accent:#111827; --chip:#f1f1f4; --shadow:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
+    --c-vm:#7c3aed; --c-serv:#0891b2; --c-ft:#ea580c; --c-bd:#2563eb;
+    --c-lm:#16a34a; --c-rob:#e11d48; --c-ret:#db2777; --c-ag:#ca8a04;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    line-height:1.5;font-size:15px}
+  a{color:inherit}
+  .wrap{max-width:940px;margin:0 auto;padding:0 16px}
+
+  header{background:linear-gradient(180deg,#fff, #fff 60%,#fbfbfc);border-bottom:1px solid var(--line)}
+  .head-in{padding:22px 0 14px}
+  h1{margin:0;font-size:22px;letter-spacing:-.02em;font-weight:700}
+  .sub{color:var(--muted);font-size:13.5px;margin-top:3px}
+  .sub b{color:var(--ink);font-weight:600}
+
+  /* controls */
+  .controls{position:sticky;top:0;z-index:20;background:rgba(247,247,248,.86);
+    backdrop-filter:saturate(180%) blur(8px);border-bottom:1px solid var(--line)}
+  .controls-in{padding:10px 0}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .row+.row{margin-top:8px}
+  .pill{border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;
+    padding:5px 11px;font-size:13px;cursor:pointer;white-space:nowrap;transition:.12s;user-select:none;display:inline-flex;gap:6px;align-items:center}
+  .pill .n{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+  .pill:hover{border-color:#cfcfd6}
+  .pill[aria-pressed="true"]{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .pill[aria-pressed="true"] .n{color:rgba(255,255,255,.75)}
+  .pill.cat[aria-pressed="true"]{background:var(--catc);border-color:var(--catc)}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--catc);flex:none}
+  .pill[aria-pressed="true"] .dot{background:#fff}
+
+  .search{flex:1;min-width:180px;display:flex;align-items:center;gap:8px;background:#fff;
+    border:1px solid var(--line);border-radius:10px;padding:7px 11px}
+  .search:focus-within{border-color:#c4c4cc;box-shadow:0 0 0 3px rgba(17,24,39,.05)}
+  .search input{border:0;outline:0;flex:1;font-size:14.5px;background:transparent;color:var(--ink);min-width:0}
+  .search svg{opacity:.4;flex:none}
+  select{border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 9px;font-size:13.5px;color:var(--ink);cursor:pointer}
+  .toggle{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none;
+    border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px}
+  .toggle input{accent-color:var(--c-ft);margin:0}
+  .toggle[data-on="1"]{color:var(--c-ft);border-color:#f6cba3}
+
+  .meta-line{color:var(--muted);font-size:12.5px;padding:9px 0 2px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .clear{color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+
+  /* cards */
+  main{padding:6px 0 60px}
+  .card{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--catc);
+    border-radius:12px;padding:13px 15px;margin:10px 0;box-shadow:var(--shadow);position:relative}
+  .card .t{font-size:15.5px;font-weight:650;letter-spacing:-.01em;line-height:1.35;padding-right:34px}
+  .favb{position:absolute;top:9px;right:10px;background:none;border:0;cursor:pointer;font-size:19px;
+    line-height:1;padding:4px;color:#c6c8cf;transition:.12s;user-select:none}
+  .favb:hover{transform:scale(1.15)}
+  .favb[aria-pressed="true"]{color:#db2777}
+  .card .t a{text-decoration:none}
+  .card .t a:hover{text-decoration:underline;text-underline-offset:2px}
+  .auth{color:#565b66;font-size:12.5px;margin-top:3px}
+  .auth .inst{opacity:.9}
+  .tldr{font-size:13.8px;margin-top:7px;color:#33343a}
+  .sched{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .chip{font-size:12px;border-radius:7px;padding:3px 8px;background:var(--chip);color:#3a3b42;white-space:nowrap;display:inline-flex;gap:5px;align-items:center;line-height:1.3}
+  .chip.oral{background:#fdf6ec;color:#b45309;border:1px solid #f2ddbd;font-weight:600}
+  .chip.tbd{background:transparent;color:var(--muted);border:1px dashed var(--line)}
+  .chip b{font-weight:600;color:#111}
+  .chip.oral b{color:#92400e}
+  .badge{margin-left:auto;font-size:12px;font-weight:600;color:var(--catc);background:color-mix(in srgb,var(--catc) 10%,#fff);
+    border:1px solid color-mix(in srgb,var(--catc) 22%,#fff);border-radius:999px;padding:2px 9px;white-space:nowrap}
+  .room{color:var(--muted)}
+  .sentinel{height:1px}
+  .empty{text-align:center;color:var(--muted);padding:60px 0}
+  .more{text-align:center;color:var(--muted);font-size:12.5px;padding:14px 0}
+  footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;padding:18px 0 40px;line-height:1.6}
+  footer a{color:#4b5563}
+  mark{background:#fde68a;color:inherit;padding:0 1px;border-radius:2px}
+  @media (max-width:560px){
+    .badge{margin-left:0;order:5}
+    h1{font-size:20px}
+    body{font-size:14.5px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap head-in">
+    <h1>ICML 2026 · Paper Topic Guide</h1>
+    <div class="sub" id="subline">Loading…</div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="wrap controls-in">
+    <div class="row" id="catrow"></div>
+    <div class="row">
+      <label class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+        <input id="q" type="search" placeholder="Search title, author, keyword…" autocomplete="off">
+      </label>
+      <div class="row" id="dayrow" style="gap:6px"></div>
+      <label class="toggle" id="oraltog"><input type="checkbox" id="oralonly"> Orals only</label>
+      <button class="toggle" id="favtog" type="button" style="gap:5px">♥ <span id="favn">0</span></button>
+      <select id="sort" aria-label="Sort">
+        <option value="sched">Sort: Schedule</option>
+        <option value="cat">Sort: Category</option>
+        <option value="title">Sort: Title</option>
+      </select>
+    </div>
+    <div class="meta-line">
+      <span id="count"></span>
+      <span class="clear" id="clear" hidden>Reset filters</span>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main">
+  <div id="list"></div>
+  <div class="sentinel" id="sentinel"></div>
+  <div class="more" id="more" hidden></div>
+</main>
+
+<footer class="wrap">
+  <div><b>How this was built:</b> every ICML 2026 accepted paper was pulled from the official <a href="https://icml.cc/virtual/2026/papers.html" target="_blank" rel="noopener">icml.cc</a> data feed and organized by the official ICML topic areas (top-level area + subtopic).</div>
+  <div style="margin-top:6px">TLDRs are auto-generated from paper titles and may be approximate — always check the linked paper page. Times shown in <b>KST (Seoul)</b>. Poster board numbers (e.g. #2302) and rooms are from the ICML schedule.</div>
+  <div id="foot2" style="margin-top:6px"></div>
+</footer>
+
+<script src="papers.js"></script>
+<script>
+(function(){
+  const PAPERS = window.ICML_PAPERS||[], META = window.ICML_META||{};
+  PAPERS.forEach(p=>{if(!p.grp)p.grp=p.cat.split('->')[0];});
+  const CATCOLOR = {
+    "Deep Learning":"var(--c-vm)","Applications":"var(--c-serv)","Social Aspects":"var(--c-rob)",
+    "General Machine Learning":"var(--c-bd)","Reinforcement Learning":"var(--c-ft)","Theory":"var(--c-lm)",
+    "Optimization":"var(--c-ret)","Probabilistic Methods":"var(--c-ag)","Unspecified":"#6b7280"
+  };
+  const CATLABEL = {"General Machine Learning":"General ML","Reinforcement Learning":"RL","Probabilistic Methods":"Probabilistic"};
+  const SUB = c => c.includes("->") ? c.split("->")[1] : c;
+  const state = { cat:"All", sub:"All", q:"", day:"All", oral:false, fav:false, sort:"sched" };
+
+  // ---------- favorites (stored only in this browser via localStorage) ----------
+  const FAVKEY='icml2026_favs';
+  let FAV=new Set(); try{FAV=new Set(JSON.parse(localStorage.getItem(FAVKEY)||'[]'));}catch(e){}
+  function favSave(){try{localStorage.setItem(FAVKEY,JSON.stringify([...FAV]));}catch(e){}}
+  function favToggle(id){ FAV.has(id)?FAV.delete(id):FAV.add(id); favSave(); favCount(); }
+  function favCount(){ const el=document.getElementById('favn'); if(el)el.textContent=FAV.size; }
+
+  // ---------- build controls ----------
+  const catrow = document.getElementById('catrow');
+  function pill(label,count,active,color){
+    const b=document.createElement('button');
+    b.className='pill'+(color?' cat':''); b.setAttribute('aria-pressed',active?'true':'false');
+    if(color){b.style.setProperty('--catc',color);}
+    b.innerHTML=(color?'<span class="dot"></span>':'')+'<span>'+label+'</span><span class="n">'+count+'</span>';
+    return b;
+  }
+  const allBtn=pill('All',META.total,true,null); catrow.appendChild(allBtn);
+  const catBtns={};
+  (META.cats||[]).forEach(c=>{
+    const b=pill(CATLABEL[c]||c, META.counts[c]||0, false, CATCOLOR[c]);
+    b.addEventListener('click',()=>{state.cat=(state.cat===c?"All":c);state.sub="All";syncCats();apply();});
+    catBtns[c]=b; catrow.appendChild(b);
+  });
+  allBtn.addEventListener('click',()=>{state.cat="All";state.sub="All";syncCats();apply();});
+  const subSel=document.createElement('select'); subSel.id='subsel'; subSel.hidden=true;
+  subSel.setAttribute('aria-label','Subtopic'); catrow.appendChild(subSel);
+  subSel.addEventListener('change',()=>{state.sub=subSel.value;apply();});
+  function syncSubs(){
+    if(state.cat==="All"){subSel.hidden=true;return;}
+    const subs=[...new Set(PAPERS.filter(p=>p.grp===state.cat&&p.cat.includes('->')).map(p=>p.cat))].sort();
+    subSel.hidden = subs.length<2;
+    subSel.innerHTML='<option value="All">All subtopics</option>'+subs.map(s=>'<option value="'+s.replace(/"/g,'&quot;')+'"'+(state.sub===s?' selected':'')+'>'+SUB(s)+'</option>').join('');
+  }
+  function syncCats(){
+    allBtn.setAttribute('aria-pressed',state.cat==="All"?'true':'false');
+    Object.entries(catBtns).forEach(([c,b])=>b.setAttribute('aria-pressed',state.cat===c?'true':'false'));
+    syncSubs();
+  }
+
+  // days
+  const dayrow=document.getElementById('dayrow');
+  const days = Array.from(new Set(PAPERS.map(p=>(p.os||p.ps||{}).date).filter(Boolean))).sort();
+  const dayLabel = d => { const s=PAPERS.find(p=>(p.os||p.ps||{}).date===d); return (s.os||s.ps).day.replace(/^\w+ /,''); };
+  const dayBtns={};
+  const dAll=pill('All days','',true,null); dAll.querySelector('.n').remove();
+  dAll.addEventListener('click',()=>{state.day="All";syncDays();apply();}); dayrow.appendChild(dAll);
+  days.forEach(d=>{
+    const b=pill(dayLabel(d),'',false,null); b.querySelector('.n').remove();
+    b.addEventListener('click',()=>{state.day=(state.day===d?"All":d);syncDays();apply();});
+    dayBtns[d]=b; dayrow.appendChild(b);
+  });
+  function syncDays(){ dAll.setAttribute('aria-pressed',state.day==="All"?'true':'false');
+    Object.entries(dayBtns).forEach(([d,b])=>b.setAttribute('aria-pressed',state.day===d?'true':'false')); }
+
+  const qEl=document.getElementById('q'); let qt;
+  qEl.addEventListener('input',()=>{clearTimeout(qt);qt=setTimeout(()=>{state.q=qEl.value.trim().toLowerCase();apply();},120);});
+  const oralEl=document.getElementById('oralonly'); const oralTog=document.getElementById('oraltog');
+  oralEl.addEventListener('change',()=>{state.oral=oralEl.checked;oralTog.dataset.on=oralEl.checked?'1':'0';apply();});
+  const favTog=document.getElementById('favtog'); favCount();
+  favTog.addEventListener('click',()=>{state.fav=!state.fav;favTog.dataset.on=state.fav?'1':'0';
+    favTog.style.color=state.fav?'#db2777':'';favTog.style.borderColor=state.fav?'#f3bcd4':'';apply();});
+  document.getElementById('sort').addEventListener('change',e=>{state.sort=e.target.value;apply();});
+  document.getElementById('clear').addEventListener('click',()=>{
+    state.cat="All";state.sub="All";state.q="";state.day="All";state.oral=false;state.sort="sched";
+    if(state.fav){state.fav=false;favTog.dataset.on="0";favTog.style.color="";favTog.style.borderColor="";}
+    qEl.value="";oralEl.checked=false;oralTog.dataset.on="0";document.getElementById('sort').value="sched";
+    syncCats();syncDays();apply();
+  });
+
+  document.getElementById('subline').innerHTML =
+    '<b>'+META.total.toLocaleString()+'</b> papers · <b>'+META.orals+'</b> orals · official ICML topic areas · Seoul, Jul 6–11, times in KST'
+    +' · <a href="map.html" style="color:#4338ca;font-weight:600;text-decoration:underline;text-underline-offset:2px">COEX floor map →</a>';
+  document.getElementById('foot2').textContent =
+    'Generated '+META.generated+' · all '+META.total.toLocaleString()+' accepted ICML 2026 papers.';
+
+  // ---------- filtering & sort ----------
+  const CATORDER = {}; (META.cats||[]).forEach((c,i)=>CATORDER[c]=i);
+  const grpOrder = p => CATORDER[p.grp]||0;
+  function schedKey(p){ const s=p.os||p.ps; return s?s.sortkey:'9'; }
+  function filtered(){
+    let r=PAPERS;
+    if(state.fav) r=r.filter(p=>FAV.has(p.id));
+    if(state.cat!=="All") r=r.filter(p=>p.grp===state.cat);
+    if(state.sub!=="All") r=r.filter(p=>p.cat===state.sub);
+    if(state.oral) r=r.filter(p=>p.oral);
+    if(state.day!=="All") r=r.filter(p=>(p.os&&p.os.date===state.day)||(p.ps&&p.ps.date===state.day));
+    if(state.q){ const q=state.q;
+      r=r.filter(p=>p._s.includes(q)); }
+    r=r.slice();
+    if(state.sort==="title") r.sort((a,b)=>a.title.localeCompare(b.title));
+    else if(state.sort==="cat") r.sort((a,b)=>(grpOrder(a)-grpOrder(b))||a.cat.localeCompare(b.cat)||schedKey(a).localeCompare(schedKey(b)));
+    else r.sort((a,b)=>schedKey(a).localeCompare(schedKey(b))||a.title.localeCompare(b.title));
+    return r;
+  }
+  // precompute search string
+  PAPERS.forEach(p=>{p._s=(p.title+' '+p.authors+' '+p.inst+' '+p.tldr+' '+p.cat).toLowerCase();});
+
+  // ---------- rendering (incremental) ----------
+  const listEl=document.getElementById('list'), moreEl=document.getElementById('more');
+  let cur=[], shown=0; const BATCH=40;
+  function esc(s){return s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  function hi(s){ if(!state.q) return esc(s); const i=s.toLowerCase().indexOf(state.q);
+    if(i<0) return esc(s); return esc(s.slice(0,i))+'<mark>'+esc(s.slice(i,i+state.q.length))+'</mark>'+esc(s.slice(i+state.q.length)); }
+  function schedChips(p){
+    let h='';
+    if(p.os){ h+='<span class="chip oral">ORAL <b>'+p.os.day+' '+p.os.time+'</b> <span class="room">· '+esc(p.os.room||'')+'</span></span>'; }
+    if(p.ps){ h+='<span class="chip">Poster <b>'+p.ps.day+' '+p.ps.time+'</b> <span class="room">· '+esc(p.ps.room||'')+(p.ps.pos?' · '+esc(p.ps.pos):'')+'</span></span>'; }
+    if(!p.os&&!p.ps){ h+='<span class="chip tbd">Schedule TBD</span>'; }
+    return h;
+  }
+  function cardHTML(p){
+    const color=CATCOLOR[p.grp]||'#999';
+    return '<article class="card" style="--catc:'+color+'">'
+      +'<button class="favb" data-fid="'+p.id+'" aria-pressed="'+FAV.has(p.id)+'" aria-label="Favorite" title="Save to favorites (this browser only)">'+(FAV.has(p.id)?'♥':'♡')+'</button>'
+      +'<div class="t"><a href="'+esc(p.url)+'" target="_blank" rel="noopener">'+hi(p.title)+'</a></div>'
+      +'<div class="auth">'+hi(p.authors)+(p.inst?' <span class="inst">· '+hi(p.inst)+'</span>':'')+'</div>'
+      +(p.tldr?'<div class="tldr">'+hi(p.tldr)+'</div>':'')
+      +'<div class="sched">'+schedChips(p)+'<span class="badge">'+esc(SUB(p.cat))+'</span></div>'
+      +'</article>';
+  }
+  function renderMore(){
+    const next=cur.slice(shown,shown+BATCH);
+    if(!next.length){moreEl.hidden=true;return;}
+    const frag=document.createElement('div'); frag.innerHTML=next.map(cardHTML).join('');
+    while(frag.firstChild) listEl.appendChild(frag.firstChild);
+    shown+=next.length;
+    moreEl.hidden = shown>=cur.length;
+    if(!moreEl.hidden) moreEl.textContent='Scroll for more · showing '+shown+' of '+cur.length;
+  }
+  function apply(){
+    cur=filtered(); shown=0; listEl.innerHTML='';
+    document.getElementById('count').innerHTML='<b>'+cur.length.toLocaleString()+'</b> paper'+(cur.length===1?'':'s')
+      +(state.cat!=="All"?' in '+(CATLABEL[state.cat]||state.cat):'')
+      +(state.day!=="All"?' · '+dayLabel(state.day):'')+(state.oral?' · orals':'');
+    const dirty = state.cat!=="All"||state.sub!=="All"||state.q||state.day!=="All"||state.oral||state.fav||state.sort!=="sched";
+    document.getElementById('clear').hidden=!dirty;
+    if(!cur.length){ listEl.innerHTML='<div class="empty">No papers match these filters.</div>'; moreEl.hidden=true; return; }
+    renderMore();
+  }
+  listEl.addEventListener('click',e=>{
+    const b=e.target.closest('.favb'); if(!b) return;
+    const id=+b.dataset.fid; favToggle(id);
+    const on=FAV.has(id); b.setAttribute('aria-pressed',on); b.textContent=on?'♥':'♡';
+    if(state.fav&&!on){ b.closest('article').remove(); cur=cur.filter(p=>p.id!==id);
+      document.getElementById('count').innerHTML='<b>'+cur.length.toLocaleString()+'</b> papers · favorites'; }
+  });
+
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)renderMore();});},{rootMargin:'600px'});
+  io.observe(document.getElementById('sentinel'));
+
+  apply();
+})();
+</script>
+</body>
+</html>
